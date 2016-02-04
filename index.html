@@ -1,37 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Giffer Reborn</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-  </head>
-  <body>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-	<div class="navbar-header">
-	  <a class="navbar-brand" href="#">Giffer Reborn</a>
-	</div>
-      </div>
-    </nav>
-    <div id="editor-container">
-      <div id="editor">void setup() {
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giffer Reborn</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
 
-}
+<body>
+  <div class="header">
+      <h2>Giffer Reborn</h2>
+  </div>
+  
+  <div id="editor"></div>
 
-void loop() {
-
-}
-      </div>
-    </div>
-    <div id="control-container">
-      <div class="panel panel-default">
+  <div id="control-panel" class="panel panel-default right-panel">
 	<div class="panel-heading">Control Panel</div>
-	<div class="panel-body">Stuff</div>
-      </div>
-    </div>
-    
-    <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/main.js" type="text/javascript" charset="utf-8"></script>
-  </body>
+	<div class="panel-body">
+	  <div class="buttons">
+		<button id="runbutton" class="btn btn-default" onclick="runCode()">Run</button>
+		<br>
+		<button class="btn btn-default" onclick="saveCode()">Save Code</button>
+		<br>
+		<button class="btn btn-default" onclick="savePage()">Save Generated Page</button>
+	  </div>
+	</div>
+  </div>
+  <div class="panel panel-default right-panel" id="output-panel">
+	<div class="panel-heading">Output</div>
+	<div class="panel-body" id="console-output"></div>
+  </div>
+
+  <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/JSCPP.es5.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/main.js" type="text/javascript", charset="utf-8"></script>
+</body>
 </html>
