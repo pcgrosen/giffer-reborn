@@ -1,0 +1,21 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+#editor-container {
+    height: 100%;
+}
+
+#editor {
+    width: 25%;
+    height: 95%;
+}
+
+#control-container {
+    float: right;
+    width: 33%;
+}
