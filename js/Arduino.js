@@ -18,6 +18,10 @@ var load = function(rt) {
   rt.types[rt.getTypeSignature(string_t)] = {
     "#father": "object"
   };
+  var to_char_star = function(rt, _this) {
+	  return _this.v.members.buffer;
+  }
+  rt.regFunc(to_char_star, string_t, "toCharStar", [], rt.normalPointerType(rt.charTypeLiteral));
   
   
   // SERIAL ///////////////////////////////////////////////////////
