@@ -88,12 +88,16 @@ var load = function(rt) {
   
   // LED FUNCTIONS ////////////////////////////////////////////////
   
-  rt.scope[0]["LOW"] = LOW
-  rt.scope[0]["HIGH"] = HIGH
+  var gen_int_obj = function (val) {
+    return {t: rt.unsignedintTypeLiteral, v: val, left: true}
+  }
   
-  rt.scope[0]["INPUT"] = INPUT
-  rt.scope[0]["OUTPUT"] = OUTPUT
-  rt.scope[0]["INPUT_PULLUP"] = INPUT_PULLUP
+  rt.scope[0]["LOW"] = gen_int_obj(LOW)
+  rt.scope[0]["HIGH"] = gen_int_obj(HIGH)
+  
+  rt.scope[0]["INPUT"] = gen_int_obj(INPUT)
+  rt.scope[0]["OUTPUT"] = gen_int_obj(OUTPUT)
+  rt.scope[0]["INPUT_PULLUP"] = gen_int_obj(INPUT_PULLUP)
   
   frameManager = new FrameManager()
   

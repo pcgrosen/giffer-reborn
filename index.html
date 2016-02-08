@@ -16,23 +16,28 @@
   <div id="editor"></div>
 
   <div id="control-panel" class="panel panel-default right-panel">
-	<div class="panel-heading">Control Panel</div>
-	<div class="panel-body">
-	  <div class="buttons">
-		<button id="runbutton" class="btn btn-default" onclick="runCode()">Run</button>
-		<br>
-		<button class="btn btn-default" onclick="saveCode()">Save Code</button>
-		<br>
-		<button class="btn btn-default" onclick="savePage()">Save Generated Page</button>
-	  </div>
-	</div>
+    <div class="panel-heading">Control Panel</div>
+      <div class="panel-body">
+        <div class="buttons">
+          <button id="runbutton" class="btn btn-default" onclick="runCode()">Run</button>
+          <br>
+          <button class="btn btn-default" onclick="saveCode()">Save Code</button>
+          <br>
+          <button class="btn btn-default" onclick="savePage()">Save Generated Page</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="panel panel-default right-panel" id="output-panel">
-	<div class="panel-heading">Output</div>
-	<div class="panel-body" id="console-output"></div>
+    <div class="panel-heading">Output</div>
+    <div class="panel-body" id="console-output"></div>
+  </div>
+  <div class="panel panel-default right-panel" id="gif-panel">
+    <div class="panel-heading">Gif</div>
+    <div class="panel-body" id="gif-output"></div>
   </div>
   
-  <img src="img/shield.png" style="display: none;"></img>
+  <img src="img/shield.png" id="shield-img" style="display: none;"></img>
 
   <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/JSCPP.js" type="text/javascript" charset="utf-8"></script>
