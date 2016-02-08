@@ -24,10 +24,10 @@ function Frame(previousFrame) {
 }
 
 Frame.prototype.getPinMode = function (pinNumber) {
-  if (typeof(this.pinModes[pinNumber]) === "undefined") {
+  if (typeof(this.ledModes[pinNumber]) === "undefined") {
     return INPUT
   } else {
-    return this.pinModes[pinNumber]
+    return this.ledModes[pinNumber]
   }
 }
 
@@ -36,10 +36,10 @@ Frame.prototype.setPinMode = function (pinNumber, mode) {
 }
 
 Frame.prototype.getPinState = function (pinNumber) {
-  if (typeof(this.pinStates[pinNumber]) === "undefined") {
+  if (typeof(this.ledStates[pinNumber]) === "undefined") {
     return LOW
   } else {
-    return this.pinStates[pinNumber]
+    return this.ledStates[pinNumber]
   }
 }
 
