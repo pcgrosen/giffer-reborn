@@ -2,7 +2,7 @@
 	height: 100%;
 }
 
-h2 {
+h2, h3 {
 	font-family: ubuntu, menlo, monaco, monospace;
 }
 
@@ -49,7 +49,7 @@ html, body {
 }
 
 #gif-panel {
-	height: 30%;
+	height: 270px;
 }
 
 #console-output {

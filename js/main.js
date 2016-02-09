@@ -118,7 +118,7 @@ function runCode() {
         var ledDescriptor = ledLookup[i];
         ctx.globalAlpha = alpha;
         ctx.fillStyle = ledDescriptor.color;
-	ctx.strokeStyle = ledDescriptor.color;
+        ctx.strokeStyle = ledDescriptor.color;
         ctx.beginPath();
         ctx.arc(ledDescriptor.x + radius, ledDescriptor.y + radius, radius, 0, 2 * Math.PI, false);
         ctx.closePath();
@@ -130,12 +130,12 @@ function runCode() {
     ctx.font = "15px monospace";
     ctx.fillText("Frame: " + index, shieldImg.width + 10, 15);
     ctx.fillText("PostDelay: " + frame.postDelay, shieldImg.width + 10, 35);
-    ctx.fillText("Created by " + name, shieldImg.width + 10, 55);
+    ctx.fillText("By " + name, shieldImg.width + 10, 55);
     ctx.fillText("Exercise " + exerciseNumber, shieldImg.width + 10, 75);
 
     ctx.fillText(dateString, shieldImg.width + 10, 115);
     ctx.fillText(timeString, shieldImg.width + 10, 135);
-    var realDelay = (frame.postDelay === 0) ? 1 : frame.postDelay
+    var realDelay = (frame.postDelay === 0) ? 15 : frame.postDelay
     gif.addFrame(ctx, {copy: true, delay: realDelay});
   }
   
