@@ -36,6 +36,7 @@ html, body {
 	margin-right: 10px;
 	margin-top: 0px;
 	font: 12px 'dejavu sans mono', menlo, monaco, monospace;
+	border-radius: 10px;
 }
 
 .right-panel {

@@ -72,10 +72,10 @@ function runCode() {
   gifOutput.innerHTML = "Running code . . .";
   
   var exitCode = JSCPP.run(code, input, config);
-  document.getElementById("console-output").innerHTML = JSON.stringify(frameManager);
+  //document.getElementById("console-output").innerHTML = JSON.stringify(frameManager);
   console.log(frameManager);
   gifOutput.innerHTML = "Generating gif . . .";
-  var gif = new GIF({workers: 4, quality: 0});
+  var gif = new GIF({workers: 4, quality: 0, workerScript: "/js/gif/gif.worker.js"});
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
   
@@ -114,16 +114,16 @@ function runCode() {
         }
         var radius = 7;
         var ledDescriptor = ledLookup[i];
+	console.log(ledDescriptor);
         ctx.globalAlpha = alpha;
         ctx.fillStyle = ledDescriptor.color;
         ctx.beginPath();
         ctx.arc(ledDescriptor.x + radius, ledDescriptor.y + radius, radius, 0, 2 * Math.PI, false);
         ctx.closePath();
         ctx.fill();
-        
-        gif.addFrame(canvas, {copy: true, delay: frame.postDelay});
       }
     }
+    gif.addFrame(canvas, {copy: true, delay: frame.postDelay});
   }
   
   frameManager.frames.forEach(draw_frame);
