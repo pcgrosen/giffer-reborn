@@ -25,6 +25,7 @@ editor.commands.addCommand({
 });
 
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
+document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
 running = false;
 
@@ -105,6 +106,7 @@ function runCode() {
   var name = document.getElementById("name").value;
   localStorage.name = name;
   var exerciseNumber = document.getElementById("exercise-number").value;
+  localStorage.exerciseNumber = exerciseNumber;
 
   var draw_frame = function(frame, index, array) {
     ctx.globalAlpha = 1;
