@@ -54,26 +54,30 @@ function runCode() {
   }
   running = true;
   var code = "#include \"Arduino.h\"\n" + editor.getValue() + "\n\nint main() { setup(); loop(); return 0;}\n";
-  //var code = editor.getValue();
-  var input = "4321";
-  var output = "";
-  var config = {
-    stdio: {
-      write: function(s) {
-        output += s;
-      }
-    },
-    includes: {
-      "Arduino.h": arduino_h //defined in Arduino.js
-    }
-  };
   
   var gifOutput = document.getElementById("gif-output");
-  
   gifOutput.innerHTML = "Running code . . .";
   
-  var exitCode = JSCPP.run(code, input, config);
-  //document.getElementById("console-output").innerHTML = JSON.stringify(frameManager);
+  var jscpp = new Worker("/js/JSCPP-WebWorker.js");
+  jscpp.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var newFrameManager = new FrameManager(); //Recreate the frameManager
+    newFrameManager.currentFrame = data.currentFrame
+    for (var i = 0; i <= data.currentFrame; i++) {
+      var newFrame = new Frame();
+      newFrame.ledStates = data.frames[i].ledStates;
+      newFrame.ledModes = data.frames[i].ledModes;
+      newFrame.postDelay = data.frames[i].postDelay;
+      newFrameManager.frames.push(newFrame);
+    }
+    generateGif(newFrameManager);
+  };
+  jscpp.postMessage(code);
+}
+
+function generateGif(frameManager) {
+  console.log(frameManager);
+  var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Generating gif . . .";
   var gif = new GIF({workers: 4, quality: 0, workerScript: "/js/gif/gif.worker.js", width: 500, height: 195});
   var canvas = document.createElement("canvas");
