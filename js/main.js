@@ -1,3 +1,4 @@
+"use strict";
 var editor = ace.edit("editor");
 editor.getSession().setMode("ace/mode/c_cpp");
 
@@ -27,9 +28,9 @@ editor.commands.addCommand({
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
 document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
-running = false;
+var running = false;
 
-ledLookup = {
+var ledLookup = {
   2: {x: 87, y: 165, color: "red"},
   3: {x: 87, y: 140, color: "green"},
   4: {x: 87, y: 115, color: "red"},
@@ -62,7 +63,7 @@ function runCode() {
   jscpp.onmessage = function(e) {
     var data = JSON.parse(e.data);
     var newFrameManager = new FrameManager(); //Recreate the frameManager
-    newFrameManager.currentFrame = data.currentFrame
+    newFrameManager.currentFrame = data.currentFrame;
     for (var i = 0; i <= data.currentFrame; i++) {
       var newFrame = new Frame();
       newFrame.ledStates = data.frames[i].ledStates;
@@ -72,11 +73,55 @@ function runCode() {
     }
     generateGif(newFrameManager);
   };
+  jscpp.onerror = function(e) {
+    var errorObj = JSON.parse(e.message.slice(e.message.indexOf("{")));
+    if (typeof(errorObj.text) !== "undefined" || typeof(errorObj.error) !== "undefined") {
+      var line = errorObj.error.line - 2;
+      var column = errorObj.error.column;
+      document.getElementById("console-output").innerHTML = errorObj.text;
+      var aceDoc = editor.getSession().getDocument();
+      var code = aceDoc.getValue();
+      var endOfError = aceDoc.positionToIndex({row: line, column: column});
+      var endOfErrorObj = aceDoc.indexToPosition(endOfError - 2);
+      var startOfErrorObj;
+      var i = endOfError - 2;
+      if (i >= 0) {
+	while (true) {
+	  var chr = code.charAt(i);
+	  if (!(/\s/.test(chr))) {
+	    break;
+	  }
+	  if (i === 0) {
+	    break;
+	  }
+	  i--;
+	}
+	startOfErrorObj = aceDoc.indexToPosition(i + 1);
+      } else {
+	startOfErrorObj = {row: line, column: column};
+      }
+      var selectionRange = new ace.require("ace/range").Range.fromPoints(startOfErrorObj.row, startOfErrorObj.column, endOfErrorObj.row, endOfErrorObj.column);
+      selectionRange.start = startOfErrorObj;
+      selectionRange.end = endOfErrorObj;
+      console.log(selectionRange);
+      editor.getSession().getSelection().setSelectionRange(selectionRange);
+      editor.getSession().setAnnotations([{
+	row: startOfErrorObj.row,
+	column: startOfErrorObj.colum,
+	text: "CRITICAL ERROR, SELF DESTRUCT INITIALIZED",
+	type: "error"
+      }]);
+      editor.navigateTo(startOfErrorObj.row, startOfErrorObj.column);
+    } else {
+      document.getElementById("console-output").innerHTML = "Warning: Unusual error!\n\n" + errorObj.toString();
+    }
+    running = false;
+    return true;
+  };
   jscpp.postMessage(code);
 }
 
 function generateGif(frameManager) {
-  console.log(frameManager);
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Generating gif . . .";
   var gif = new GIF({workers: 4, quality: 0, workerScript: "/js/gif/gif.worker.js", width: 500, height: 195});
@@ -98,7 +143,7 @@ function generateGif(frameManager) {
     var img = document.createElement("img");
     img.src = URL.createObjectURL(gif);
     gifOutput.appendChild(img);
-  }
+  };
   gif.on("finished", on_finished);
   
   var shieldImg = document.getElementById("shield-img");
@@ -141,9 +186,9 @@ function generateGif(frameManager) {
 
     ctx.fillText(dateString, shieldImg.width + 10, 115);
     ctx.fillText(timeString, shieldImg.width + 10, 135);
-    var realDelay = (frame.postDelay === 0) ? 15 : frame.postDelay
+    var realDelay = (frame.postDelay === 0) ? 15 : frame.postDelay;
     gif.addFrame(ctx, {copy: true, delay: realDelay});
-  }
+  };
   
   frameManager.frames.forEach(draw_frame);
   gif.render();
