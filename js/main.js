@@ -142,6 +142,7 @@ function generateGif(frameManager) {
     gifOutput.innerHTML = "";
     var img = document.createElement("img");
     img.src = URL.createObjectURL(gif);
+    img.id = "output-image";
     gifOutput.appendChild(img);
   };
   gif.on("finished", on_finished);
@@ -199,4 +200,36 @@ function generateGif(frameManager) {
 
 function saveCode() {
   localStorage.code = editor.getValue();
+}
+
+function savePage() {
+  var obj = {};
+  obj.code = editor.getValue();
+  var image = document.getElementById("output-image");
+  obj.img = (image !== null) ? getBase64Image(image) : null;
+  obj.consoleOutput = document.getElementById("console-output").innerHTML;
+  var name = document.getElementById("name").value;
+  var exerciseNumber = document.getElementById("exercise-number").value;
+  obj.name = name;
+  obj.exercise = exerciseNumber;
+  var jsonString = JSON.stringify(obj);
+  saveAs(new Blob([jsonString], {type: "text/plain;charset=utf-8"}), name.replace(/ /g,'') + "_Exercise" + exerciseNumber + ".giffer");
+}
+
+//thanks to http://stackoverflow.com/questions/934012/get-image-data-in-javascript
+function getBase64Image(img) {
+    // Create an empty canvas element
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    // Get the data-URL formatted image
+    // Firefox supports PNG and JPEG. You could check img.src to
+    // guess the original format, but be aware the using "image/jpg"
+    // will re-encode the image.
+    return canvas.toDataURL("image/png");
 }

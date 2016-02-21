@@ -24,7 +24,14 @@
           <br>
           <button class="btn btn-default" onclick="saveCode()">Save Code</button>
           <br>
-          <button class="btn btn-default" onclick="savePage()">Save Generated Page</button>
+          <div id="file-op-buttons">
+	    <button class="btn btn-default" onclick="savePage()">Export Page</button>
+	    <input id="input-file" class="fileinput" name="input-file" type="file" multiple>
+	    &nbsp;
+	    <label for="input-file" class="btn btn-default">Load Page</label>
+	    &nbsp;
+	    <button class="btn btn-default" onclick="nextPage()" style="visibility: hidden;">Next Page</button>
+	  </div>
 	  <br>
 	  <br>
 	  <div class="input-group">
@@ -54,6 +61,7 @@
   <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/Arduino.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/gif/gif.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/FileSaver.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/main.js" type="text/javascript", charset="utf-8"></script>
 </body>
 </html>
