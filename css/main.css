@@ -28,6 +28,11 @@ html, body {
 	margin-bottom: 10px;
 }
 
+.maintext {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
 .fileinput {
 	width: 0.1px;
 	height: 0.1px;

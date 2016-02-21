@@ -32,34 +32,53 @@ var fileInput = document.getElementById("input-file");
 var currentFile = null;
 var files = null;
 fileInput.addEventListener("change", function(event) {
-  console.log("wut");
+  currentFile = null;
   files = fileInput.files;
-  for (var i = 0; i < files.length; i++) {
-    console.log("Filename: " + files[i].name);
-    console.log("Type: " + files[i].type);
-    console.log("Size: " + files[i].size);
+  if (files.length > 1) {
+    document.getElementById("next-page-button").style = "";
+    document.getElementById("num-remaining").style = "";
   }
-  currentFile = 0;
-  loadFile(files[0]);
+  nextPage();
 }, false);
+
+function nextPage() {
+  if (currentFile == null) {
+    currentFile = -1;
+  }
+  if ((currentFile + 1) >= files.length) {
+    return;
+  }
+  currentFile++;
+  document.getElementById("num-remaining").innerHTML = "(" + ((files.length - 1) - currentFile) + ((((files.length - 1) - currentFile) === 1) ? " page remaining)" : " pages remaining)");
+  if ((currentFile + 1) >= files.length) {
+    document.getElementById("next-page-button").style = "visibility: hidden;";
+    document.getElementById("num-remaining").style = "visibility: hidden;";
+  }
+  loadFile(files[currentFile]);
+}
 
 function loadFile(file) {
   document.getElementById("console-output").innerHTML = "Loading file . . .";
   var reader = new FileReader();
   reader.onload = function(event) {
-    var obj = JSON.parse(event.target.result);
-    editor.setValue(obj.code);
-    var gifOutput = document.getElementById("gif-output");
-    gifOutput.innerHTML = "";
-    if (obj.img !== null) {
-      var img = document.createElement("img");
-      img.src = obj.img;
-      img.id = "output-image";
-      gifOutput.appendChild(img);
+    try {
+      var obj = JSON.parse(event.target.result);
+      editor.setValue(obj.code);
+      var gifOutput = document.getElementById("gif-output");
+      gifOutput.innerHTML = "";
+      if (obj.img !== null) {
+	var img = document.createElement("img");
+	img.src = obj.img;
+	img.id = "output-image";
+	gifOutput.appendChild(img);
+      }
+      document.getElementById("console-output").innerHTML = obj.consoleOutput;
+      document.getElementById("name").value = obj.name;
+      document.getElementById("exercise-number").value = obj.exercise;
     }
-    document.getElementById("console-output").innerHTML = obj.consoleOutput;
-    document.getElementById("name").value = obj.name;
-    document.getElementById("exercise-number").value = obj.exercise;
+    catch (e) {
+      document.getElementById("console-output").innerHTML = "Error: File is corrupt."; 
+    }
   };
   reader.onerror = function(event) {
     document.getElementById("console-output").innerHTML = "Couldn't read " + file.name + " (Error: " + event.target.error.code + ")";
