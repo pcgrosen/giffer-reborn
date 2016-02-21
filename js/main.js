@@ -28,6 +28,45 @@ editor.commands.addCommand({
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
 document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
+var fileInput = document.getElementById("input-file");
+var currentFile = null;
+var files = null;
+fileInput.addEventListener("change", function(event) {
+  console.log("wut");
+  files = fileInput.files;
+  for (var i = 0; i < files.length; i++) {
+    console.log("Filename: " + files[i].name);
+    console.log("Type: " + files[i].type);
+    console.log("Size: " + files[i].size);
+  }
+  currentFile = 0;
+  loadFile(files[0]);
+}, false);
+
+function loadFile(file) {
+  document.getElementById("console-output").innerHTML = "Loading file . . .";
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    var obj = JSON.parse(event.target.result);
+    editor.setValue(obj.code);
+    var gifOutput = document.getElementById("gif-output");
+    gifOutput.innerHTML = "";
+    if (obj.img !== null) {
+      var img = document.createElement("img");
+      img.src = obj.img;
+      img.id = "output-image";
+      gifOutput.appendChild(img);
+    }
+    document.getElementById("console-output").innerHTML = obj.consoleOutput;
+    document.getElementById("name").value = obj.name;
+    document.getElementById("exercise-number").value = obj.exercise;
+  };
+  reader.onerror = function(event) {
+    document.getElementById("console-output").innerHTML = "Couldn't read " + file.name + " (Error: " + event.target.error.code + ")";
+  };
+  reader.readAsText(file);
+}
+
 var running = false;
 
 var ledLookup = {
@@ -138,10 +177,10 @@ function generateGif(frameManager) {
     return;
   }
   
-  var on_finished = function(gif) {
+  var on_finished = function(gif, e) {
     gifOutput.innerHTML = "";
     var img = document.createElement("img");
-    img.src = URL.createObjectURL(gif);
+    img.src = "data:image/gif;base64," + btoa(String.fromCharCode.apply(null, e));
     img.id = "output-image";
     gifOutput.appendChild(img);
   };
@@ -205,31 +244,19 @@ function saveCode() {
 function savePage() {
   var obj = {};
   obj.code = editor.getValue();
-  var image = document.getElementById("output-image");
-  obj.img = (image !== null) ? getBase64Image(image) : null;
   obj.consoleOutput = document.getElementById("console-output").innerHTML;
   var name = document.getElementById("name").value;
   var exerciseNumber = document.getElementById("exercise-number").value;
   obj.name = name;
   obj.exercise = exerciseNumber;
+  var image = document.getElementById("output-image");
+  obj.img = (image !== null) ? image.src : null;
   var jsonString = JSON.stringify(obj);
   saveAs(new Blob([jsonString], {type: "text/plain;charset=utf-8"}), name.replace(/ /g,'') + "_Exercise" + exerciseNumber + ".giffer");
 }
 
-//thanks to http://stackoverflow.com/questions/934012/get-image-data-in-javascript
-function getBase64Image(img) {
-    // Create an empty canvas element
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Copy the image contents to the canvas
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    // Get the data-URL formatted image
-    // Firefox supports PNG and JPEG. You could check img.src to
-    // guess the original format, but be aware the using "image/jpg"
-    // will re-encode the image.
-    return canvas.toDataURL("image/png");
+function blobToDataURL(blob, callback) {
+    var a = new FileReader();
+    a.onload = function(e) {callback(e.target.result);};
+    a.readAsDataURL(blob);
 }
