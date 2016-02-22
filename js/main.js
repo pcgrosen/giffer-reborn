@@ -117,7 +117,7 @@ function runCode() {
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Running code . . .";
   
-  var jscpp = new Worker("/js/JSCPP-WebWorker.js");
+  var jscpp = new Worker("js/JSCPP-WebWorker.js");
   jscpp.onmessage = function(e) {
     var data = JSON.parse(e.data);
     var newFrameManager = new FrameManager(); //Recreate the frameManager
