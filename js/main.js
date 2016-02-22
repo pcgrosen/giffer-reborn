@@ -182,7 +182,7 @@ function runCode() {
 function generateGif(frameManager) {
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Generating gif . . .";
-  var gif = new GIF({workers: 4, quality: 0, workerScript: "/js/gif/gif.worker.js", width: 500, height: 195});
+  var gif = new GIF({workers: 4, quality: 0, workerScript: "js/gif/gif.worker.js", width: 500, height: 195});
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
 
