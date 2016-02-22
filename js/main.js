@@ -199,7 +199,12 @@ function generateGif(frameManager) {
   var on_finished = function(gif, e) {
     gifOutput.innerHTML = "";
     var img = document.createElement("img");
-    img.src = "data:image/gif;base64," + btoa(String.fromCharCode.apply(null, e));
+    var binString = "";
+    e.forEach(function (element) {
+      binString += String.fromCharCode(element);
+    });
+    console.log(binString);
+    img.src = "data:image/gif;base64," + btoa(binString); //+ btoa(String.fromCharCode.apply(null, e));
     img.id = "output-image";
     gifOutput.appendChild(img);
   };
