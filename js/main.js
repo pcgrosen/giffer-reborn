@@ -38,10 +38,10 @@ fileInput.addEventListener("change", function(event) {
     document.getElementById("next-page-button").style = "";
     document.getElementById("num-remaining").style = "";
   }
-  nextPage();
+  nextJSON();
 }, false);
 
-function nextPage() {
+function nextJSON() {
   if (currentFile == null) {
     currentFile = -1;
   }
@@ -87,6 +87,7 @@ function loadFile(file) {
 }
 
 var running = false;
+var lastFrameManager = null;
 
 var ledLookup = {
   2: {x: 87, y: 165, color: "red"},
@@ -106,6 +107,19 @@ var ledLookup = {
   15: {x: 5, y: 7, color: "yellow"}
 };
 
+function frameManagerFromJSON(string) {
+  var data = JSON.parse(string);
+  var newFrameManager = new FrameManager(); //Recreate the frameManager
+  newFrameManager.currentFrame = data.currentFrame;
+  for (var i = 0; i <= data.currentFrame; i++) {
+    var newFrame = new Frame();
+    newFrame.ledStates = data.frames[i].ledStates;
+    newFrame.ledModes = data.frames[i].ledModes;
+    newFrame.postDelay = data.frames[i].postDelay;
+    newFrameManager.frames.push(newFrame);
+  }
+  return newFrameManager;
+}
 
 function runCode() {
   if (running) {
@@ -119,17 +133,13 @@ function runCode() {
   
   var jscpp = new Worker("js/JSCPP-WebWorker.js");
   jscpp.onmessage = function(e) {
-    var data = JSON.parse(e.data);
-    var newFrameManager = new FrameManager(); //Recreate the frameManager
-    newFrameManager.currentFrame = data.currentFrame;
-    for (var i = 0; i <= data.currentFrame; i++) {
-      var newFrame = new Frame();
-      newFrame.ledStates = data.frames[i].ledStates;
-      newFrame.ledModes = data.frames[i].ledModes;
-      newFrame.postDelay = data.frames[i].postDelay;
-      newFrameManager.frames.push(newFrame);
+    var newFrameManager = frameManagerFromJSON(e.data);
+    lastFrameManager = newFrameManager;
+    if ($("#should-grade")[0].checked) {
+      gradeFrameManager(newFrameManager);
+    } else {
+      generateGif(newFrameManager);
     }
-    generateGif(newFrameManager);
   };
   jscpp.onerror = function(e) {
     var errorObj = JSON.parse(e.message.slice(e.message.indexOf("{")));
@@ -161,7 +171,6 @@ function runCode() {
       var selectionRange = new ace.require("ace/range").Range.fromPoints(startOfErrorObj.row, startOfErrorObj.column, endOfErrorObj.row, endOfErrorObj.column);
       selectionRange.start = startOfErrorObj;
       selectionRange.end = endOfErrorObj;
-      console.log(selectionRange);
       editor.getSession().getSelection().setSelectionRange(selectionRange);
       editor.getSession().setAnnotations([{
 	row: startOfErrorObj.row,
@@ -179,7 +188,62 @@ function runCode() {
   jscpp.postMessage(code);
 }
 
-function generateGif(frameManager) {
+function gradeFrameManager(studentFM) {
+  var xmlhttp = new XMLHttpRequest();
+  var exerciseNum = $("#exercise-number")[0].valueAsNumber;
+  $("#gif-output").text("Getting grading file . . .");
+  if (exerciseNum === NaN) {
+    $("#console-output").text("Please input a valid exercise number to grade.");
+    running = false;
+    return;
+  }
+  xmlhttp.open("GET", "exercises/" + exerciseNum + "/Exercise_" + exerciseNum + ".FrameManager");
+  var handleResponse = function () {
+    try {
+      $("#gif-output").text("Grading . . .");
+      var correctFM = frameManagerFromJSON(this.responseText);
+      console.log(compareFrameManagers(studentFM, correctFM));
+      generateGif(studentFM, compareFrameManagers(studentFM, correctFM));
+    } catch (e) {
+      console.log(e);
+      $("#console-output").text("An error occurred parsing the grading file.");
+    }
+  };
+  xmlhttp.addEventListener("load", handleResponse);
+  var handleError = function () {
+    $("#console-output").text("An error occurred getting the grading file.");
+  };
+  xmlhttp.addEventListener("error", handleError);
+  xmlhttp.addEventListener("abort", handleError);
+  xmlhttp.send();
+}
+
+function compareFrameManagers(fm1, fm2) {
+  if (fm1.frames.length !== fm2.frames.length) {
+    return false;
+  }
+  var onewayFrameCompare = function (f1, f2) {
+    var correct = true;
+    Object.keys(f1.ledStates).forEach(function (element) {
+      if (correct) {
+	correct = correct && (f1.getPinState(element) === f2.getPinState(element));
+	correct = correct && ((f1.getPinState(element) === HIGH) ? (f1.getPinMode(element) === f2.getPinMode(element)) : correct);
+      };
+    });
+    return correct;
+  };
+  var areSame = true;
+  console.log(fm1);
+  fm1.frames.forEach(function (element, key) {
+    areSame = areSame && (onewayFrameCompare(element, fm2.frames[key]) && onewayFrameCompare(fm2.frames[key], element));
+  });
+  fm2.frames.forEach(function (element, key) {
+    areSame = areSame && (onewayFrameCompare(element, fm1.frames[key]) && onewayFrameCompare(fm1.frames[key], element));
+  });
+  return areSame;
+}
+
+function generateGif(frameManager, isCorrect) {
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Generating gif . . .";
   var gif = new GIF({workers: 4, quality: 0, workerScript: "js/gif/gif.worker.js", width: 500, height: 195});
@@ -203,7 +267,6 @@ function generateGif(frameManager) {
     e.forEach(function (element) {
       binString += String.fromCharCode(element);
     });
-    console.log(binString);
     img.src = "data:image/gif;base64," + btoa(binString); //+ btoa(String.fromCharCode.apply(null, e));
     img.id = "output-image";
     gifOutput.appendChild(img);
@@ -265,7 +328,7 @@ function saveCode() {
   localStorage.code = editor.getValue();
 }
 
-function savePage() {
+function saveJSON() {
   var obj = {};
   obj.code = editor.getValue();
   obj.consoleOutput = document.getElementById("console-output").innerHTML;
@@ -276,7 +339,13 @@ function savePage() {
   var image = document.getElementById("output-image");
   obj.img = (image !== null) ? image.src : null;
   var jsonString = JSON.stringify(obj);
-  saveAs(new Blob([jsonString], {type: "text/plain;charset=utf-8"}), name.replace(/ /g,'') + "_Exercise" + exerciseNumber + ".giffer");
+  saveAs(new Blob([jsonString], {type: "application/json;charset=utf-8"}), name.replace(/ /g,'') + "_Exercise" + exerciseNumber + ".giffer");
+}
+
+function saveFrameManager() {
+  if (lastFrameManager !== null && $("#exercise-number")[0].valueAsNumber !== NaN) {
+    saveAs(new Blob([JSON.stringify(lastFrameManager)], {type: "application/json;charset=utf-8"}), "Exercise_" + $("#exercise-number")[0].value + ".FrameManager");
+  }
 }
 
 function blobToDataURL(blob, callback) {
