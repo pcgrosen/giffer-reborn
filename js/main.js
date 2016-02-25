@@ -111,6 +111,7 @@ function frameManagerFromJSON(string) {
   var data = JSON.parse(string);
   var newFrameManager = new FrameManager(); //Recreate the frameManager
   newFrameManager.currentFrame = data.currentFrame;
+  newFrameManager.frames = [];
   for (var i = 0; i <= data.currentFrame; i++) {
     var newFrame = new Frame();
     newFrame.ledStates = data.frames[i].ledStates;
@@ -130,6 +131,7 @@ function runCode() {
   
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Running code . . .";
+  $("#console-output")[0].innerHTML = "";
   
   var jscpp = new Worker("js/JSCPP-WebWorker.js");
   jscpp.onmessage = function(e) {
@@ -200,10 +202,17 @@ function gradeFrameManager(studentFM) {
   xmlhttp.open("GET", "exercises/" + exerciseNum + "/Exercise_" + exerciseNum + ".FrameManager");
   var handleResponse = function () {
     try {
-      $("#gif-output").text("Grading . . .");
-      var correctFM = frameManagerFromJSON(this.responseText);
-      console.log(compareFrameManagers(studentFM, correctFM));
-      generateGif(studentFM, compareFrameManagers(studentFM, correctFM));
+      if (this.status === 200) {
+	$("#gif-output").text("Grading . . .");
+	var correctFM = frameManagerFromJSON(this.responseText);
+	generateGif(studentFM, compareFrameManagers(studentFM, correctFM));
+      } else if (this.status === 404) {
+        $("#console-output").text("The grading file for exercise " + exerciseNum + " does not exist.");
+        return;
+      } else {
+        $("#console-output").text("An error occurred getting the grading file.");
+        return;
+      }
     } catch (e) {
       console.log(e);
       $("#console-output").text("An error occurred parsing the grading file.");
@@ -220,27 +229,51 @@ function gradeFrameManager(studentFM) {
 
 function compareFrameManagers(fm1, fm2) {
   if (fm1.frames.length !== fm2.frames.length) {
+    $("#console-output")[0].innerHTML = "Gifs are different lengths";
     return false;
   }
   var onewayFrameCompare = function (f1, f2) {
-    var correct = true;
-    Object.keys(f1.ledStates).forEach(function (element) {
-      if (correct) {
-	correct = correct && (f1.getPinState(element) === f2.getPinState(element));
-	correct = correct && ((f1.getPinState(element) === HIGH) ? (f1.getPinMode(element) === f2.getPinMode(element)) : correct);
-      };
-    });
-    return correct;
+    if (!Object.keys(f1.ledStates).every(function (element) {
+      if (!(f1.getPinState(element) === f2.getPinState(element))) {
+	$("#console-output")[0].innerHTML = "Found difference in pin states on pin " + element;
+	return false;
+      }
+      if (!((f1.getPinState(element) === HIGH) ? (f1.getPinMode(element) === f2.getPinMode(element)) : true)) {
+	$("#console-output")[0].innerHTML = "Found difference in pin modes on pin " + element;
+	return false;
+      }
+      return true;
+    })) {
+      return false
+    }
+    if (!(f1.postDelay === f2.postDelay)) {
+      $("#console-output")[0].innerHTML = "Found difference in delays";
+      return false;
+    }
+    return true;
   };
-  var areSame = true;
-  console.log(fm1);
-  fm1.frames.forEach(function (element, key) {
-    areSame = areSame && (onewayFrameCompare(element, fm2.frames[key]) && onewayFrameCompare(fm2.frames[key], element));
-  });
-  fm2.frames.forEach(function (element, key) {
-    areSame = areSame && (onewayFrameCompare(element, fm1.frames[key]) && onewayFrameCompare(fm1.frames[key], element));
-  });
-  return areSame;
+  
+  if (!fm1.frames.every(function (element, key) {
+    if (onewayFrameCompare(element, fm2.frames[key]) && onewayFrameCompare(fm2.frames[key], element)) {
+      return true;
+    } else {
+      $("#console-output")[0].innerHTML += " in frame " + key;
+      return false;
+    }
+  })) {
+    return false;
+  }
+  if (!fm2.frames.every(function (element, key) {
+    if (onewayFrameCompare(element, fm1.frames[key]) && onewayFrameCompare(fm1.frames[key], element)) {
+      return true;
+    } else {
+      $("#console-output")[0].innerHTML += " in frame " + key;
+      return false;
+    }
+  })) {
+    return false;
+  }
+  return true;
 }
 
 function generateGif(frameManager, isCorrect) {
@@ -313,6 +346,11 @@ function generateGif(frameManager, isCorrect) {
 
     ctx.fillText(dateString, shieldImg.width + 10, 115);
     ctx.fillText(timeString, shieldImg.width + 10, 135);
+
+    ctx.fillStyle = ((typeof(isCorrect) === "undefined") || (isCorrect === false)) ? "red" : "green";
+    var gradeText = (isCorrect === true) ? "Correct" : ((isCorrect === false) ? "Incorrect" : "Ungraded");
+    ctx.fillText(gradeText, shieldImg.width + 10, 175);
+    
     var realDelay = (frame.postDelay === 0) ? 15 : frame.postDelay;
     gif.addFrame(ctx, {copy: true, delay: realDelay});
   };
