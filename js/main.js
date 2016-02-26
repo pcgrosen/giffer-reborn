@@ -28,6 +28,30 @@ editor.commands.addCommand({
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
 document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
+new Clipboard("#copy-page", {
+  text: function() {
+    var outputGif = $("#output-image").clone()[0];
+    if (typeof(outputGif) === "undefined") {
+      $("#console-output").text("Please generate a gif first.");
+      return undefined;
+    }
+    var preDom = document.createElement("pre");
+    var dom = $(preDom.appendChild(document.createElement("code")));
+    dom[0].class = "cpp";
+    dom.text(editor.getValue());
+    hljs.highlightBlock(dom[0]);
+    dom.find("*").each(function (index) {
+      $(this).css("color", window.getComputedStyle(this).getPropertyValue("color"));
+    });
+    var divWrapper = document.createElement("div");
+    divWrapper.appendChild(outputGif);
+    divWrapper.appendChild(document.createElement("br"));
+    divWrapper.appendChild(preDom);
+    $("#console-output").text("Copied! Go to \"Prepare an answer\" on Neo, then click the \"<>\" button and paste by pressing Control + V ");
+    return divWrapper.innerHTML;
+  }
+});
+
 var fileInput = document.getElementById("input-file");
 var currentFile = null;
 var files = null;
@@ -347,6 +371,7 @@ function generateGif(frameManager, isCorrect) {
     ctx.fillText(dateString, shieldImg.width + 10, 115);
     ctx.fillText(timeString, shieldImg.width + 10, 135);
 
+    ctx.font = "bold 15px monospace";
     ctx.fillStyle = ((typeof(isCorrect) === "undefined") || (isCorrect === false)) ? "red" : "green";
     var gradeText = (isCorrect === true) ? "Correct" : ((isCorrect === false) ? "Incorrect" : "Ungraded");
     ctx.fillText(gradeText, shieldImg.width + 10, 175);
@@ -358,6 +383,7 @@ function generateGif(frameManager, isCorrect) {
   frameManager.frames.forEach(draw_frame);
   gif.render();
   
+  $("#copy-page").css("visibility", "visible");
   
   running = false;
 }

@@ -6,6 +6,7 @@
     <title>Giffer Reborn</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/styles/androidstudio.css">
   </head>
 
   <body>
@@ -27,6 +28,8 @@
 	  <label><input type="checkbox" id="should-grade" checked="checked">&nbsp;Check the result</label>
           <br>
           <button class="btn btn-default" onclick="saveCode()">Save Code</button>
+          &nbsp;
+          <button class="btn btn-default" id="copy-page" style="visibility: hidden;">Copy Page to Clipboard</button>
           <br>
 	  <br>
           <div class="input-group">
@@ -71,6 +74,8 @@
     <script src="js/FrameManager.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/gif/gif.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/FileSaver.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/main.js" type="text/javascript", charset="utf-8"></script>
+    <script src="js/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/highlight.pack.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/main.js" type="text/javascript" charset="utf-8"></script>
   </body>
 </html>
