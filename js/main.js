@@ -218,7 +218,7 @@ function gradeFrameManager(studentFM) {
   var xmlhttp = new XMLHttpRequest();
   var exerciseNum = $("#exercise-number")[0].valueAsNumber;
   $("#gif-output").text("Getting grading file . . .");
-  if (exerciseNum === NaN) {
+  if (isNaN(exerciseNum)) {
     $("#console-output").text("Please input a valid exercise number to grade.");
     running = false;
     return;
@@ -232,19 +232,23 @@ function gradeFrameManager(studentFM) {
 	generateGif(studentFM, compareFrameManagers(studentFM, correctFM));
       } else if (this.status === 404) {
         $("#console-output").text("The grading file for exercise " + exerciseNum + " does not exist.");
+        running = false;
         return;
       } else {
         $("#console-output").text("An error occurred getting the grading file.");
+        running = false;
         return;
       }
     } catch (e) {
       console.log(e);
       $("#console-output").text("An error occurred parsing the grading file.");
+      running = false;
     }
   };
   xmlhttp.addEventListener("load", handleResponse);
   var handleError = function () {
     $("#console-output").text("An error occurred getting the grading file.");
+    running = false;
   };
   xmlhttp.addEventListener("error", handleError);
   xmlhttp.addEventListener("abort", handleError);
