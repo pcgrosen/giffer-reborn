@@ -2,8 +2,17 @@
     height: 100%;
 }
 
-h2, h3 {
+.header-element {
     font-family: ubuntu, menlo, monaco, monospace;
+    padding-top: 7px;
+}
+
+.title-text {
+    font-size: 30px;
+}
+
+.by-text {
+    font-size: 20px;
 }
 
 .main {
@@ -77,10 +86,4 @@ html, body {
     color: white;
     height: calc(100% - 40px);
     border-radius: 0px 0px 4px 4px;
-}
-
-.header {
-    margin-top: 0;
-    padding: 5px;
-    height: 60px;
 }
