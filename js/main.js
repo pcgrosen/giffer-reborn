@@ -40,6 +40,9 @@ new Clipboard("#copy-page", {
     dom[0].class = "cpp";
     dom.text(editor.getValue());
     hljs.highlightBlock(dom[0]);
+    var highlightStorage = $("#highlight-storage");
+    highlightStorage.empty();
+    highlightStorage.append(preDom);
     dom.find("*").each(function (index) {
       $(this).css("color", window.getComputedStyle(this).getPropertyValue("color"));
     });
