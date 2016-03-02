@@ -68,7 +68,7 @@ html, body {
 
 .right-panel {
     float: left;
-    width: 530px;
+    width: 35%;
 }
 
 #output-panel {
@@ -77,7 +77,6 @@ html, body {
 
 #gif-panel {
     height: 270px;
-    width: 530px;
 }
 
 #console-output {
