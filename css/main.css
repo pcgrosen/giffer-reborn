@@ -79,6 +79,11 @@ html, body {
     height: 270px;
 }
 
+#gif-output {
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
 #console-output {
     font-family: monospace;
     background-color: #202020;
