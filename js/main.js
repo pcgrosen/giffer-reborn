@@ -28,6 +28,8 @@ editor.commands.addCommand({
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
 document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
+//RIP Copy-to-clipboard
+/*
 new Clipboard("#copy-page", {
   text: function() {
     var outputGif = $("#output-image").clone()[0];
@@ -54,6 +56,8 @@ new Clipboard("#copy-page", {
     return divWrapper.innerHTML;
   }
 });
+*/
+
 
 var fileInput = document.getElementById("input-file");
 var currentFile = null;
@@ -391,7 +395,7 @@ function generateGif(frameManager, isCorrect) {
   frameManager.frames.forEach(draw_frame);
   gif.render();
   
-  $("#copy-page").css("visibility", "visible");
+  $("#download-page").css("visibility", "visible");
   
   running = false;
 }
