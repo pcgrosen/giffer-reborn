@@ -310,12 +310,13 @@ function compareFrameManagers(fm1, fm2) {
 function generateGif(frameManager, isCorrect) {
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Generating gif . . .";
-  var gif = new GIF({workers: 4, quality: 0, workerScript: "js/gif/gif.worker.js", width: 500, height: 195});
-  var canvas = document.createElement("canvas");
-  var ctx = canvas.getContext("2d");
 
+  var canvas = document.createElement("canvas");
   canvas.height = 195;
-  canvas.width = 500;
+  canvas.width = 300;
+
+  var gif = new GIF({workers: 4, quality: 10, workerScript: "js/gif/gif.worker.js", transparent: 0xFFFFFF, width: canvas.width, height: canvas.height});
+  var ctx = canvas.getContext("2d");
   
   var img = document.getElementById("shield-img");
   if (!img.complete || ((typeof(img.naturalWidth) !== "undefined") && img.naturalWidth === 0)) {
