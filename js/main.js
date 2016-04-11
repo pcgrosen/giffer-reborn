@@ -28,13 +28,11 @@ editor.commands.addCommand({
 document.getElementById("name").value = (typeof(localStorage.name) === "undefined") ? "" : localStorage.name;
 document.getElementById("exercise-number").value = (typeof(localStorage.exerciseNumber) === "undefined") ? "" : localStorage.exerciseNumber;
 
-//RIP Copy-to-clipboard
-/*
 new Clipboard("#copy-page", {
   text: function() {
-    var outputGif = $("#output-image").clone()[0];
+    var outputGif = $("#confirmation-gif").clone()[0];
     if (typeof(outputGif) === "undefined") {
-      $("#console-output").text("Please generate a gif first.");
+      $("#console-output").text("Please generate a graded gif first.");
       return undefined;
     }
     var preDom = document.createElement("pre");
@@ -56,8 +54,6 @@ new Clipboard("#copy-page", {
     return divWrapper.innerHTML;
   }
 });
-*/
-
 
 var fileInput = document.getElementById("input-file");
 var currentFile = null;
@@ -157,6 +153,7 @@ function runCode() {
   if (running) {
     return;
   }
+  $("#copy-page").css("visibility", "hidden");
   running = true;
   var code = "#include \"Arduino.h\"\n" + editor.getValue() + "\n\nint main() { setup(); loop(); return 0;}\n";
   
@@ -279,7 +276,7 @@ function compareFrameManagers(fm1, fm2) {
       }
       return true;
     })) {
-      return false
+      return false;
     }
     if (!(f1.postDelay === f2.postDelay)) {
       $("#console-output")[0].innerHTML = "Found difference in delays";
@@ -394,10 +391,62 @@ function generateGif(frameManager, isCorrect) {
   
   frameManager.frames.forEach(draw_frame);
   gif.render();
+
+  if ((isCorrect === true) || (isCorrect === false)) {
+    generateConfirmationGif(isCorrect);
+  }
   
-  $("#download-page").css("visibility", "visible");
+  $("#copy-page").css("visibility", "visible");
+  //$("#download-page").css("visibility", "visible");
   
   running = false;
+}
+
+function generateConfirmationGif(isCorrect) {
+  var name = document.getElementById("name").value;
+  var exercise = document.getElementById("exercise-number").value;
+  
+  var canvas = document.createElement("canvas");
+  canvas.height = 110;
+  canvas.width = 300;
+
+  var gif = new GIF({workers: 4, quality: 10, workerScript: "js/gif/gif.worker.js", transparent: 0xFFFFFF, width: canvas.width, height: canvas.height});
+  var ctx = canvas.getContext("2d");
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "black";
+  ctx.font = "15px monospace";
+  ctx.fillText("Student: " + name, 5, 25);
+  ctx.fillText("Exercise: " + exercise, 5, 45);
+  ctx.fillText("Confirmation Hash: " + (name + exercise).hashCode(), 5, 65);
+
+  gif.addFrame(ctx, {copy: true, delay: 500});
+
+  ctx.font = "bold 15px monospace";
+  ctx.fillStyle = ((typeof(isCorrect) === "undefined") || (isCorrect === false)) ? "red" : "green";
+  var gradeText = (isCorrect === true) ? "Correct" : "Incorrect";
+  ctx.fillText(gradeText, 5, 85);
+
+  gif.addFrame(ctx, {copy: true, delay: 500});
+
+  gif.on("finished", function(gif, e) {
+    var container = $("#confirmation-gif-container")[0];
+    container.innerHTML = "";
+    var img = document.createElement("img");
+    var binString = "";
+    e.forEach(function (element) {
+      binString += String.fromCharCode(element);
+    });
+    img.src = "data:image/gif;base64," + btoa(binString); //+ btoa(String.fromCharCode.apply(null, e));
+    img.id = "confirmation-gif";
+    container.appendChild(img);
+  });
+
+  gif.render();
 }
 
 function saveCode() {
@@ -428,4 +477,16 @@ function blobToDataURL(blob, callback) {
     var a = new FileReader();
     a.onload = function(e) {callback(e.target.result);};
     a.readAsDataURL(blob);
+}
+
+//Simple hash function, thanks to http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+String.prototype.hashCode = function(){
+	var hash = 0;
+	if (this.length == 0) return hash;
+	for (var i = 0; i < this.length; i++) {
+		var char = this.charCodeAt(i);
+		hash = ((hash<<5)-hash)+char;
+		hash = hash & hash; // Convert to 32bit integer
+	}
+	return hash;
 }
