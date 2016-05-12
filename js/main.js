@@ -155,7 +155,8 @@ function runCode() {
   }
   $("#copy-page").css("visibility", "hidden");
   running = true;
-  var code = "#include \"Arduino.h\"\n" + editor.getValue() + "\n\nint main() { setup(); loop(); return 0;}\n";
+  var prefix = "#include \"Arduino.h\"\ntypedef unsigned char byte;\n";
+  var code = prefix + editor.getValue() + "\n\nint main() { setup(); loop(); return 0;}\n";
   
   var gifOutput = document.getElementById("gif-output");
   gifOutput.innerHTML = "Running code . . .";
@@ -174,7 +175,7 @@ function runCode() {
   jscpp.onerror = function(e) {
     var errorObj = JSON.parse(e.message.slice(e.message.indexOf("{")));
     if (typeof(errorObj.text) !== "undefined" || typeof(errorObj.error) !== "undefined") {
-      var line = errorObj.error.line - 2;
+      var line = errorObj.error.line - (prefix.split("\n").length - 1);
       var column = errorObj.error.column;
       document.getElementById("console-output").innerHTML = errorObj.text;
       var aceDoc = editor.getSession().getDocument();
