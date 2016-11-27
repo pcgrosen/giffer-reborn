@@ -1,5 +1,6 @@
 LOW = 0x0;
 HIGH = 0x1;
+ANALOG_MAX = 1023;
 
 INPUT = 0x0;
 OUTPUT = 0x1;
@@ -21,6 +22,7 @@ function Frame(previousFrame) {
     }
     this.postDelay = 0;
   }
+  this.outputText = [];
 }
 
 Frame.prototype.getPinMode = function (pinNumber) {
@@ -47,6 +49,14 @@ Frame.prototype.setPinState = function (pinNumber, state) {
   this.ledStates[pinNumber] = state;
 };
 
+Frame.prototype.addOutputText = function(text) {
+  this.outputText.push(text);
+};
+
+Frame.prototype.getOutputText = function() {
+  return this.outputText;
+};
+
 function FrameManager() {
   this.frames = [];
   this.frames[0] = new Frame();
@@ -55,9 +65,9 @@ function FrameManager() {
 
 FrameManager.prototype.getPinMode = function (pinNumber, frame) {
   if (typeof(frame) === "undefined") {
-    this.frames[this.currentFrame].getPinMode(pinNumber);
+    return this.frames[this.currentFrame].getPinMode(pinNumber);
   } else {
-    this.frames[frame].getPinMode(pinNumber);
+    return this.frames[frame].getPinMode(pinNumber);
   }
 };
 
@@ -67,9 +77,9 @@ FrameManager.prototype.setPinMode = function (pinNumber, mode) {
 
 FrameManager.prototype.getPinState = function (pinNumber, frame) {
   if (typeof(frame) === "undefined") {
-    this.frames[this.currentFrame].getPinState(pinNumber);
+    return this.frames[this.currentFrame].getPinState(pinNumber);
   } else {
-    this.frames[frame].getPinState(pinNumber);
+    return this.frames[frame].getPinState(pinNumber);
   }
 };
 
@@ -81,4 +91,12 @@ FrameManager.prototype.nextFrame = function (delay) {
   this.frames[this.currentFrame].postDelay = delay;
   this.frames.push(new Frame(this.frames[this.currentFrame]));
   this.currentFrame++;
+};
+
+FrameManager.prototype.getOutputText = function (frame) {
+  return this.frames[frame].getOutputText();
+};
+
+FrameManager.prototype.addOutputText = function (text) {
+  this.frames[this.currentFrame].addOutputText(text);
 };
