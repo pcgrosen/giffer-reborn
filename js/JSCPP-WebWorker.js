@@ -69,7 +69,7 @@ var load = function(rt) {
 
   var delay = function (rt, _this, ms) {
     frameManager.nextFrame(ms.v);
-    var message = {delay: ms, newFrameNumber: frameManager.currentFrame, type: "newFrame"};
+    var message = {delay: ms.v, newFrameNumber: frameManager.currentFrame, type: "newFrame"};
     this.postMessage(JSON.stringify(message));
   };
   rt.regFunc(delay, "global", "delay", [rt.primitiveType("unsigned long")], rt.voidTypeLiteral);
