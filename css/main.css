@@ -90,4 +90,5 @@ html, body {
     color: white;
     height: calc(100% - 40px);
     border-radius: 0px 0px 4px 4px;
+    overflow: auto;
 }

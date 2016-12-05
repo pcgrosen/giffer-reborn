@@ -183,6 +183,14 @@ function t(text) {
   return document.createTextNode(text);
 }
 
+function output(text) {
+  $("#console-output").append(t(text));
+}
+
+function newline() {
+  $("#console-output").append(document.createElement("br"));
+}
+
 function runCode() {
   if (running) {
     return;
@@ -196,14 +204,6 @@ function runCode() {
   gifOutput.innerHTML = "Running code . . .";
   $("#console-output")[0].innerHTML = "";
 
-  function output(text) {
-    $("#console-output").append(t(text));
-  }
-
-  function newline() {
-    $("#console-output").append(document.createElement("br"));
-  }
-
   var jscpp = new Worker("js/JSCPP-WebWorker.js");
   output("(Starting execution)");
   newline();
@@ -213,6 +213,7 @@ function runCode() {
       var newFrameManager = frameManagerFromJSON(message.frameManager);
       lastContent.frameManager = newFrameManager;
       lastContent.output = $("#console-output")[0].innerHTML;
+      newline(); newline();
       if ($("#should-grade")[0].checked) {
         gradeFrameManager(newFrameManager);
       } else {
@@ -227,7 +228,8 @@ function runCode() {
         }
       }
     } else if (message.type === "newFrame") {
-      output("(Switching to frame " + message.newFrameNumber + " with a delay of " + message.delay + ")");
+      //output("(Switching to frame " + message.newFrameNumber + " with a delay of " + message.delay + ")");
+      //newline();
     }
   };
   jscpp.onerror = function(e) {
@@ -266,7 +268,7 @@ function gradeFrameManager(studentFM) {
   var exerciseNum = $("#exercise-number")[0].valueAsNumber;
   $("#gif-output").text("Getting grading file . . .");
   if (isNaN(exerciseNum)) {
-    $("#console-output").text("Please input a valid exercise number to grade.");
+    output("Please input a valid exercise number to grade.");
     running = false;
     return;
   }
@@ -278,23 +280,23 @@ function gradeFrameManager(studentFM) {
         var correctFM = frameManagerFromJSON(this.responseText);
         generateGif(studentFM, compareFrameManagers(studentFM, correctFM));
       } else if (this.status === 404) {
-        $("#console-output").text("The grading file for exercise " + exerciseNum + " does not exist.");
+        output("The grading file for exercise " + exerciseNum + " does not exist.");
         running = false;
         return;
       } else {
-        $("#console-output").text("An error occurred getting the grading file.");
+        output("An error occurred getting the grading file.");
         running = false;
         return;
       }
     } catch (e) {
       console.log(e);
-      $("#console-output").text("An error occurred parsing the grading file.");
+      output("An error occurred parsing the grading file.");
       running = false;
     }
   };
   xmlhttp.addEventListener("load", handleResponse);
   var handleError = function () {
-    $("#console-output").text("An error occurred getting the grading file.");
+    output("An error occurred getting the grading file.");
     running = false;
   };
   xmlhttp.addEventListener("error", handleError);
@@ -304,17 +306,17 @@ function gradeFrameManager(studentFM) {
 
 function compareFrameManagers(fm1, fm2) {
   if (fm1.frames.length !== fm2.frames.length) {
-    $("#console-output")[0].innerHTML = "Gifs are different lengths";
+    output("Gifs are different lengths");
     return false;
   }
   var onewayFrameCompare = function (f1, f2) {
     if (!Object.keys(f1.ledStates).every(function (element) {
       if (!(f1.getPinState(element) === f2.getPinState(element))) {
-	$("#console-output")[0].innerHTML = "Found difference in pin states on pin " + element;
+	output("Found difference in pin states on pin " + element);
 	return false;
       }
       if (!((f1.getPinState(element) === HIGH) ? (f1.getPinMode(element) === f2.getPinMode(element)) : true)) {
-	$("#console-output")[0].innerHTML = "Found difference in pin modes on pin " + element;
+	output("Found difference in pin modes on pin " + element);
 	return false;
       }
       return true;
@@ -322,8 +324,18 @@ function compareFrameManagers(fm1, fm2) {
       return false;
     }
     if (!(f1.postDelay === f2.postDelay)) {
-      $("#console-output")[0].innerHTML = "Found difference in delays";
+      output("Found difference in delays");
       return false;
+    }
+    if (f1.outputText.length !== f2.outputText.length) {
+      output("Found difference in number of Serial prints");
+      return false;
+    }
+    for (var i in f1.outputText) {
+      if (f1.outputText[i] !== f2.outputText[i]) {
+        output("Found difference in output text (\"" + f1.outputText[i] + "\" vs \"" + f2.outputText[i] + "\")");
+        return false;
+      }
     }
     return true;
   };
@@ -332,7 +344,7 @@ function compareFrameManagers(fm1, fm2) {
     if (onewayFrameCompare(element, fm2.frames[key]) && onewayFrameCompare(fm2.frames[key], element)) {
       return true;
     } else {
-      $("#console-output")[0].innerHTML += " in frame " + key;
+      output(" in frame " + key);
       return false;
     }
   })) {
@@ -342,7 +354,7 @@ function compareFrameManagers(fm1, fm2) {
     if (onewayFrameCompare(element, fm1.frames[key]) && onewayFrameCompare(fm1.frames[key], element)) {
       return true;
     } else {
-      $("#console-output")[0].innerHTML += " in frame " + key;
+      output(" in frame " + key);
       return false;
     }
   })) {
