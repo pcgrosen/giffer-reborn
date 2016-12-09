@@ -1,6 +1,6 @@
 # giffer-reborn
 
-A completely rewritten version of the DPEA giffer tool, original [here](https://github.com/ckaufer/giffer2).
+A completely rewritten version of the DPEA giffer tool by pcgrosen, original [here](https://github.com/ckaufer/giffer2).
 
 # About auto-grading
 
