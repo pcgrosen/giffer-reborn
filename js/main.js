@@ -332,8 +332,8 @@ function compareFrameManagers(fm1, fm2) {
       return false;
     }
     for (var i in f1.outputText) {
-      if (f1.outputText[i] !== f2.outputText[i]) {
-        output("Found difference in output text (\"" + f1.outputText[i] + "\" vs \"" + f2.outputText[i] + "\")");
+      if (f1.outputText[i].trim() !== f2.outputText[i].trim()) {
+        output("Found difference in output text (\"" + f1.outputText[i].trim() + "\" vs \"" + f2.outputText[i].trim() + "\")");
         return false;
       }
     }
