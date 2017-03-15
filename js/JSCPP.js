@@ -19980,8 +19980,8 @@ CRuntime.prototype.simpleType = function(type) {
   } else {
     if (this.isPrimitiveType(type)) {
       return this.primitiveType(type);
-    } else if (type in this.typdefs) {
-      return this.simpleType(this.typdefs[type]);
+    } else if (type in this.typedefs) {
+      return this.typedefs[type];
     } else {
       clsType = {
         type: "class",
